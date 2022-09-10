@@ -5,18 +5,20 @@
 	margin: 5vmin;
 	height: 98vmin;
 	width: 90vw;
+	overflow-y: auto;
 }
 
 .container-inner {
  	display: flex;
 	flex-flow: column;
-	justify-content: space-between;
+	/* justify-content: space-between; */
 	height: 100%;
+	margin-right: 3em;
 }
-.container-inner #result {
+/* .container-inner #result {
 	margin-left: 2em;
-	/* margin-right: 2em; */
-}
+	margin-right: 2em;
+} */
 
 h2 {
 	margin-bottom: 2em;
@@ -26,13 +28,12 @@ h2 {
 .container-ordner {
 	display: flex;
 	align-items: center;
-}
-
-#filelist {
-	/* background-color: crimson; */
+	justify-self: flex-start;
 }
 
 .flaticon {
-	align-self: center;
-	justify-self: end;
+	position: fixed;
+	bottom: .5rem;
+	right: .5rem;
+	font-size: 75%;
 }

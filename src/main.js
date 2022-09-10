@@ -1,7 +1,8 @@
-const { app, BrowserWindow, dialog, globalShortcut, ipcMain, Tray, Menu, nativeImage, Input } = require("electron");
+const { app, BrowserWindow, dialog, globalShortcut, ipcMain, Notification, Tray, Menu, nativeImage, Input } = require("electron");
 try { require("electron-reloader")(module); } catch (_) { }
 const { readdir } = require("fs-extra");
 const { join } = require("path");
+const { v4 } = require("uuid");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 // eslint-disable-next-line global-require
@@ -23,6 +24,21 @@ const TITEL = "Desktop Renamer";
 
 // process.on("uncaughtException", error => {});
 
+// new Notification({ title: TITEL, body: files.length }).show();
+
+// const options = {
+// 	type: "question",
+// 	buttons: ["Cancel", "Yes, please", "No, thanks"],
+// 	defaultId: 2,
+// 	title: "Question",
+// 	message: "Do you want to do this?",
+// 	detail: "It does not really matter",
+// 	checkboxLabel: "Remember my answer",
+// 	checkboxChecked: true,
+// };
+// const answer = await dialog.showMessageBox(window, options);
+// return answer.response;
+
 
 async function openPath() {
 	const { canceled, filePaths } = await dialog.showOpenDialog(window, {
@@ -40,10 +56,28 @@ async function readFiles(event, path) {
 	try {
 		window.setProgressBar(0, { mode: "normal" });
 		const files = await readdir(path);
-		app.badgeCount = files.length;
-		console.log("files.length: ", files.length);
-		// files.forEach((name, index) => {
-		// 	const path = join(folder, name);
+		return files;
+	} catch (error) {
+		window.setProgressBar(0, { mode: "error" });
+		dialog.showErrorBox(TITEL, `Hoppla, da ist etwas schief gelaufen...\n\n${error}`);
+	}
+}
+
+
+async function runStart(event, data) {
+	// dialog.showMessageBox(window, { title: TITEL, message: `UUID: ${v4()}` });
+	// return;
+	try {
+		app.badgeCount = data.filenames.length;
+		const percent = 1 / data.filenames.length;
+		window.setProgressBar(0, { mode: "normal" });
+		for (let i = 0; i < data.filenames.length; i++) {
+			const fullPath = join(data.path, data.filenames[i]);
+
+			window.setProgressBar(percent * i, { mode: "normal" });
+			app.badgeCount--;
+		}
+
 		// 	const stats = statSync(path);
 		// 	if (stats.isFile()) {
 		// 		const size = stats.size;
@@ -51,11 +85,8 @@ async function readFiles(event, path) {
 		// 		const hash = createHash("md5").update(content, "utf8").digest("hex");
 		// 		result.files.push({ name, size, hash });
 		// 		const percent = ((index + 1) / files.length);
-		// 		mainWindow.setProgressBar(percent, { mode: "normal" });
 		// 	}
-		// });
-		// // consolelog( "get-files-async", result.files.map(x => x.name).join(", "), "success" );
-		// mainWindow.setProgressBar(1, { mode: "normal" });
+		window.setProgressBar(1, { mode: "normal" });
 
 		// if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)
 		// {
@@ -120,7 +151,6 @@ async function readFiles(event, path) {
 		// btnStart.Enabled = false;
 		// btnReset.Enabled = true;
 
-		return files;
 	} catch (error) {
 		window.setProgressBar(0, { mode: "error" });
 		dialog.showErrorBox(TITEL, `Hoppla, da ist etwas schief gelaufen...\n\n${error}`);
@@ -158,6 +188,7 @@ app.whenReady().then(() => {
 	ipcMain.handle("titel", () => TITEL);
 	ipcMain.handle("openPath", openPath);
 	ipcMain.handle("readFiles", readFiles);
+	ipcMain.handle("start", runStart);
 
 	// 	mainWindow.setProgressBar(0, { mode: "normal" });
 
@@ -187,6 +218,7 @@ app.whenReady().then(() => {
 	// 	}
 	// });
 });
+
 
 app.on("window-all-closed", () => {
 	if (process.platform !== "darwin") {
