@@ -1,0 +1,38 @@
+
+.container-outer {
+ 	display: flex;
+	flex-flow: column;
+	margin: 5vmin;
+	height: 98vmin;
+	width: 90vw;
+}
+
+.container-inner {
+ 	display: flex;
+	flex-flow: column;
+	justify-content: space-between;
+	height: 100%;
+}
+.container-inner #result {
+	margin-left: 2em;
+	/* margin-right: 2em; */
+}
+
+h2 {
+	margin-bottom: 2em;
+	align-self: center;
+}
+
+.container-ordner {
+	display: flex;
+	align-items: center;
+}
+
+#filelist {
+	/* background-color: crimson; */
+}
+
+.flaticon {
+	align-self: center;
+	justify-self: end;
+}

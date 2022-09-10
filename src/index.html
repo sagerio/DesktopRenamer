@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="de">
+
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+		<meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+		<link href="./bootstrap.min.css" rel="stylesheet">
+		<link href="./styles.css" rel="stylesheet">
+		<!DOCTYPE html>
+
+		<title>Desktop Renamer</title>
+	</head>
+
+	<body>
+		<div class="container-outer">
+			<div class="container-inner">
+				<h2></h2>
+
+				<div class="d-flex flex-column">
+					<div class="container-ordner">
+						Ordner:
+						<input type="text" title="Folder" readonly class="form-control" id="result">
+						<button title="choose folder" class="btn btn-block btn-outline-dark" type="button" id="btnopenfolder">...</button>
+					</div>
+					<button disabled title="Read files" type="button" class="btn btn-outline-success mt-4" id="btnreadfiles">Read files</button><br>
+					<button disabled title="Start" type="button" class="btn btn-danger" id="btnstart">Start</button><br>
+				</div>
+
+
+				<table id="filelist" class="table table-striped table-bordered"></table>
+
+				<a href="https://www.flaticon.com/free-icons/rename" title="Icon" class="flaticon">Icon created by juicy_fish - Flaticon</a>
+			</div>
+		</div>
+
+		<script src="./renderer.js"></script>
+	</body>
+
+</html>
