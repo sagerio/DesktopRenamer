@@ -1,21 +1,19 @@
 const { app, BrowserWindow, dialog, globalShortcut, ipcMain, Notification, Tray, Menu, nativeImage, Input } = require("electron");
 try { require("electron-reloader")(module); } catch (_) { }
-const { readdir } = require("fs-extra");
-const { join } = require("path");
+const { readdir, renameSync, statSync } = require("fs-extra");
+const { join, extname, dirname, basename } = require("path");
 const { v4 } = require("uuid");
-
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
-// eslint-disable-next-line global-require
-if (require("electron-squirrel-startup")) {
-	app.quit();
-}
-
 
 /**********
 THE MAIN PROCESS
 can access the Node.js APIs directly
 can"t access the  HTML Document Object Model (DOM)
 **********/
+
+// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+if (require("electron-squirrel-startup")) {
+	app.quit();
+}
 
 // Keep a global reference of the window object, if you don"t, the window will be closed automatically when the JavaScript object is garbage collected
 let window;
@@ -39,14 +37,18 @@ const TITEL = "Desktop Renamer";
 // const answer = await dialog.showMessageBox(window, options);
 // return answer.response;
 
+// TODO better pattern
+// TODO add simulate
+// TODO compile exe, appimage/deb
+// TODO replace desktoprenamer repository
 
 async function openPath() {
 	const { canceled, filePaths } = await dialog.showOpenDialog(window, {
-		properties: ["openDirectory"],
-		buttonLabel: "Choose this folder",
 		title: "Choose folder",
 		// UNDO defaultPath: __dirname
-		defaultPath: "C:\\Users\\robert\\Downloads\\__TEST__"
+		defaultPath: "C:\\Users\\robert\\Downloads\\__TEST__",
+		buttonLabel: "Choose this folder",
+		properties: ["openDirectory"],
 	});
 	return canceled ? "" : filePaths[0];
 }
@@ -56,7 +58,10 @@ async function readFiles(event, path) {
 	try {
 		window.setProgressBar(0, { mode: "normal" });
 		const files = await readdir(path);
-		return files;
+		return files.filter(file => {
+			const stat = statSync(join(path, file));
+			return !stat.isDirectory();
+		});
 	} catch (error) {
 		window.setProgressBar(0, { mode: "error" });
 		dialog.showErrorBox(TITEL, `Hoppla, da ist etwas schief gelaufen...\n\n${error}`);
@@ -68,25 +73,26 @@ async function runStart(event, data) {
 	// dialog.showMessageBox(window, { title: TITEL, message: `UUID: ${v4()}` });
 	// return;
 	try {
+		const filePairs = [];
+		window.setEnabled(false);
 		app.badgeCount = data.filenames.length;
 		const percent = 1 / data.filenames.length;
 		window.setProgressBar(0, { mode: "normal" });
 		for (let i = 0; i < data.filenames.length; i++) {
-			const fullPath = join(data.path, data.filenames[i]);
-
-			window.setProgressBar(percent * i, { mode: "normal" });
+			const oldFullName = join(data.path, data.filenames[i]);
+			const newFullName = join(
+				dirname(oldFullName),
+				`${v4()}${extname(oldFullName)}`,
+			);
+			renameSync(oldFullName, newFullName);
+			filePairs.push({ old: basename(oldFullName), new: basename(newFullName) });
+			window.setProgressBar(percent * (i + 1), { mode: "normal" });
 			app.badgeCount--;
 		}
 
-		// 	const stats = statSync(path);
-		// 	if (stats.isFile()) {
-		// 		const size = stats.size;
-		// 		const content = readFileSync(path, { encoding: "utf8" });
-		// 		const hash = createHash("md5").update(content, "utf8").digest("hex");
-		// 		result.files.push({ name, size, hash });
-		// 		const percent = ((index + 1) / files.length);
-		// 	}
 		window.setProgressBar(1, { mode: "normal" });
+		window.setEnabled(true);
+		return filePairs;
 
 		// if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)
 		// {

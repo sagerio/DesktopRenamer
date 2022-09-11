@@ -39,7 +39,7 @@ btnOpenFolder.addEventListener("click", async () => {
 						<input type="checkbox" id="${i}" data-filename="${file}">
 					</label>`;
 				let cell2 = row.insertCell(1);
-				cell2.innerText = file;
+				cell2.innerHTML = `<span data-oldname="${file}">${file}</span>`;
 			});
 			btnStart.disabled = false;
 		} else {
@@ -53,7 +53,12 @@ btnOpenFolder.addEventListener("click", async () => {
 
 btnStart.addEventListener("click", async () => {
 	const nodes = Array.from(document.querySelectorAll("#filelist input[type=checkbox]:checked")).map(x => x.dataset.filename);
-	await window.api.start({ path: filePath, filenames: nodes });
+	if (nodes.length > 0) {
+		const renamedFiles = await window.api.start({ path: filePath, filenames: nodes });
+		renamedFiles.forEach(x => document.querySelector(`#filelist span[data-oldname='${x.old}']`).innerText = x.new);
+		document.querySelectorAll("#filelist input[type=checkbox]").forEach(x => x.checked = false);
+		chkAll.checked = false;
+	}
 });
 
 

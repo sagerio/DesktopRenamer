@@ -4,14 +4,10 @@
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width,initial-scale=1">
-		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
-		<meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
-		<meta http-equiv="Content-Security-Policy" content="img-src 'self' data:; default-src 'self'"/>
-		<meta http-equiv="X-Content-Security-Policy" content="img-src 'self' data:; default-src 'self'" />
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; img-src data: 'self'" />
+		<meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'; img-src data: 'self'" />
 		<link href="./bootstrap.min.css" rel="stylesheet">
 		<link href="./styles.css" rel="stylesheet">
-		<!DOCTYPE html>
-
 		<title>Desktop Renamer</title>
 	</head>
 
@@ -33,10 +29,10 @@
 					</div>
 					<!-- <button disabled title="Read files" type="button" class="btn btn-outline-success mt-4" id="btnreadfiles">Read files</button><br> -->
 					<button disabled title="Start" type="button" class="btn btn-danger mt-4" id="btnstart">Start</button><br>
-					<!-- <div class="form-check form-switch">
+					<div class="form-check form-switch">
 						<input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
 						<label class="form-check-label" for="flexSwitchCheckDefault">Default switch checkbox input</label>
-					</div> -->
+					</div>
 				</div>
 
 				<input type="checkbox" disabled title="alle auswählen" class="align-self-start" id="chkAll" /><br>
