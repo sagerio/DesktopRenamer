@@ -37,10 +37,10 @@ const TITEL = "Desktop Renamer";
 // const answer = await dialog.showMessageBox(window, options);
 // return answer.response;
 
-// TODO better pattern
-// TODO add simulate
+// TODO update Files when mehrfach start / simulate
 // TODO compile exe, appimage/deb
 // TODO replace desktoprenamer repository
+// TODO https://github.com/sindresorhus/awesome-electron#tools
 
 async function openPath() {
 	const { canceled, filePaths } = await dialog.showOpenDialog(window, {
@@ -70,7 +70,7 @@ async function readFiles(event, path) {
 
 
 async function runStart(event, data) {
-	// dialog.showMessageBox(window, { title: TITEL, message: `UUID: ${v4()}` });
+	// dialog.showMessageBox(window, { title: TITEL, message: data.simulate.toString() });
 	// return;
 	try {
 		const filePairs = [];
@@ -84,7 +84,9 @@ async function runStart(event, data) {
 				dirname(oldFullName),
 				`${v4()}${extname(oldFullName)}`,
 			);
-			renameSync(oldFullName, newFullName);
+			if (data.simulate !== true) {
+				renameSync(oldFullName, newFullName);
+			}
 			filePairs.push({ old: basename(oldFullName), new: basename(newFullName) });
 			window.setProgressBar(percent * (i + 1), { mode: "normal" });
 			app.badgeCount--;
@@ -93,25 +95,6 @@ async function runStart(event, data) {
 		window.setProgressBar(1, { mode: "normal" });
 		window.setEnabled(true);
 		return filePairs;
-
-		// if (folderBrowserDialog.ShowDialog(this) == DialogResult.OK)
-		// {
-		// 	dataGrid.Rows.Clear();
-		// 	progressBar.Value = 0;
-		// 	folder = txtFolder.Text = folderBrowserDialog.SelectedPath;
-		// 	files = new List<string>(Directory.GetFiles(folder, "*", SearchOption.TopDirectoryOnly));
-		// 	if (files.Count > 0)
-		// 	{
-		// 		statusText.Text = $"{files.Count} Dateien";
-		// 		progressBar.Maximum = files.Count;
-		// 		btnStart.Enabled = grpOptions.Enabled = true;
-		// 	}
-		// 	else
-		// 	{
-		// 		statusText.Text = "keine Dateien";
-		// 		btnStart.Enabled = false;
-		// 	}
-		// }
 
 		// bool simulate = chkSimulate.Checked;
 		// grpOptions.Enabled = false;

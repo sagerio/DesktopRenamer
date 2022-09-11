@@ -13,6 +13,7 @@ const table = document.getElementById("filelist");
 const btnOpenFolder = document.getElementById("btnopenfolder");
 const btnStart = document.getElementById("btnstart");
 const chkAll = document.getElementById("chkAll");
+const chkSimulate = document.getElementById("simulate");
 let filePath = "";
 let files = [];
 
@@ -54,7 +55,11 @@ btnOpenFolder.addEventListener("click", async () => {
 btnStart.addEventListener("click", async () => {
 	const nodes = Array.from(document.querySelectorAll("#filelist input[type=checkbox]:checked")).map(x => x.dataset.filename);
 	if (nodes.length > 0) {
-		const renamedFiles = await window.api.start({ path: filePath, filenames: nodes });
+		const renamedFiles = await window.api.start({
+			path: filePath,
+			filenames: nodes,
+			simulate: chkSimulate.checked
+		});
 		renamedFiles.forEach(x => document.querySelector(`#filelist span[data-oldname='${x.old}']`).innerText = x.new);
 		document.querySelectorAll("#filelist input[type=checkbox]").forEach(x => x.checked = false);
 		chkAll.checked = false;
