@@ -39,7 +39,6 @@ const TITEL = "Desktop Renamer";
 
 // TODO update Files when mehrfach start / simulate
 // TODO compile exe, appimage/deb
-// TODO replace desktoprenamer repository
 // TODO https://github.com/sindresorhus/awesome-electron#tools
 
 async function openPath() {
