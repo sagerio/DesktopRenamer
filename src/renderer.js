@@ -11,9 +11,11 @@ can access the  HTML Document Object Model (DOM)
 const result = document.getElementById("result");
 const table = document.getElementById("filelist");
 const btnOpenFolder = document.getElementById("btnopenfolder");
+const btnRefresh = document.getElementById("btnrefresh");
 const btnStart = document.getElementById("btnstart");
 const chkAll = document.getElementById("chkAll");
 const chkSimulate = document.getElementById("simulate");
+const counter = document.getElementById("counter");
 let filePath = "";
 let files = [];
 
@@ -21,8 +23,20 @@ let files = [];
 window.api.Titel.then(t => document.querySelector("h2").innerText = t);
 
 
-btnOpenFolder.addEventListener("click", async () => {
-	filePath = await window.api.openPath();
+function checkStartButton() {
+	const enabled = document.querySelectorAll("#filelist input[type=checkbox]:checked").length > 0;
+	btnStart.disabled = !enabled;
+	if (enabled) {
+		btnStart.classList.remove("btn-outline-secondary");
+		btnStart.classList.add("btn-success");
+	} else {
+		btnStart.classList.add("btn-outline-secondary");
+		btnStart.classList.remove("btn-success");
+	}
+}
+
+
+async function readFolder(filePath) {
 	if (filePath) {
 		result.value = filePath;
 		for (let i = table.rows.length - 1; i >= 0; i--) {
@@ -40,15 +54,28 @@ btnOpenFolder.addEventListener("click", async () => {
 						<input type="checkbox" id="${i}" data-filename="${file}">
 					</label>`;
 				let cell2 = row.insertCell(1);
-				cell2.innerHTML = `<span data-oldname="${file}">${file}</span>`;
+				cell2.innerHTML = `<span data-filename="${file}">${file}</span>`;
 			});
-			btnStart.disabled = false;
+			btnRefresh.disabled = false;
+			btnRefresh.classList.add("btn-outline-dark");
+			btnRefresh.classList.remove("btn-outline-secondary");
+			document.querySelectorAll("#filelist input[type=checkbox]").forEach(element =>
+				element.addEventListener("click", () => checkStartButton())
+			);
 		} else {
 			btnStart.disabled = true;
 			table.insertRow(0).insertCell(0).innerText = "..";
 		}
-
 	}
+}
+
+
+btnRefresh.addEventListener("click", async () => readFolder(filePath));
+
+
+btnOpenFolder.addEventListener("click", async () => {
+	filePath = await window.api.openPath();
+	readFolder(filePath);
 });
 
 
@@ -60,13 +87,31 @@ btnStart.addEventListener("click", async () => {
 			filenames: nodes,
 			simulate: chkSimulate.checked
 		});
-		renamedFiles.forEach(x => document.querySelector(`#filelist span[data-oldname='${x.old}']`).innerText = x.new);
+		renamedFiles.forEach(x => {
+			console.assert(document.querySelector(`#filelist input[type=checkbox][data-filename='${x.old}']`), "checkbox not found");
+			console.assert(document.querySelector(`#filelist span[data-filename='${x.old}']`), "span not found");
+			// attribute checkbox
+			document.querySelector(`#filelist input[type=checkbox][data-filename='${x.old}']`).dataset.filename = x.new;
+			// innerText span first
+			document.querySelector(`#filelist span[data-filename='${x.old}']`).innerText = x.new;
+			// attribute span
+			document.querySelector(`#filelist span[data-filename='${x.old}']`).dataset.filename = x.new;
+		});
 		document.querySelectorAll("#filelist input[type=checkbox]").forEach(x => x.checked = false);
 		chkAll.checked = false;
+		btnStart.classList.add("btn-outline-secondary");
+		btnStart.classList.remove("btn-success");
 	}
 });
 
 
-chkAll.addEventListener("change", () =>
-	document.querySelectorAll("#filelist input[type=checkbox]").forEach(x => x.checked = chkAll.checked)
-);
+chkAll.addEventListener("change", () => {
+	document.querySelectorAll("#filelist input[type=checkbox]").forEach(x => x.checked = chkAll.checked);
+	checkStartButton();
+});
+
+
+window.api.handleCounter((event, value) => {
+	counter.innerText = value;
+	event.sender.send('counter-value', value)
+});

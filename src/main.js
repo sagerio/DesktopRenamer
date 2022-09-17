@@ -37,9 +37,9 @@ const TITEL = "Desktop Renamer";
 // const answer = await dialog.showMessageBox(window, options);
 // return answer.response;
 
-// TODO update Files when mehrfach start / simulate
-// TODO compile exe, appimage/deb
+// TODO in Ordner verschieben
 // TODO https://github.com/sindresorhus/awesome-electron#tools
+// TODO Auto-Updater: https://www.electronjs.org/de/docs/latest/tutorial/updates
 
 async function openPath() {
 	const { canceled, filePaths } = await dialog.showOpenDialog(window, {
@@ -91,6 +91,7 @@ async function runStart(event, data) {
 			app.badgeCount--;
 		}
 
+		window.webContents.send("update-counter", 100);
 		window.setProgressBar(1, { mode: "normal" });
 		window.setEnabled(true);
 		return filePairs;
@@ -138,7 +139,6 @@ async function runStart(event, data) {
 		// statusText.Text = "fertig";
 		// btnStart.Enabled = false;
 		// btnReset.Enabled = true;
-
 	} catch (error) {
 		window.setProgressBar(0, { mode: "error" });
 		dialog.showErrorBox(TITEL, `Hoppla, da ist etwas schief gelaufen...\n\n${error}`);
@@ -177,6 +177,9 @@ app.whenReady().then(() => {
 	ipcMain.handle("openPath", openPath);
 	ipcMain.handle("readFiles", readFiles);
 	ipcMain.handle("start", runStart);
+	ipcMain.on("counter-value", (event, value) => {
+    	console.log(value); // will print value to Node console
+  	});
 
 	// 	mainWindow.setProgressBar(0, { mode: "normal" });
 

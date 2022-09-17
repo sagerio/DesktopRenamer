@@ -37,3 +37,13 @@ h2 {
 	right: .5rem;
 	font-size: 75%;
 }
+
+#filelist td:first-child {
+	background-color: lightgray;
+	width: 5%;
+}
+
+#chkAll {
+	align-self: start;
+	margin: 1.5rem 0 1rem .5rem;
+}

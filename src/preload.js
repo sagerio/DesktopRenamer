@@ -10,4 +10,5 @@ contextBridge.exposeInMainWorld("api", {
 	openPath: () => ipcRenderer.invoke("openPath"),
 	readFiles: path => ipcRenderer.invoke("readFiles", path),
 	start: data => ipcRenderer.invoke("start", data),
+	handleCounter: callback => ipcRenderer.on("update-counter", callback),
 });
