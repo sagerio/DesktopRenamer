@@ -51,3 +51,7 @@ h2 {
 #chkAll, #filelist input[type=checkbox] {
 	transform: scale(1.25);
 }
+
+#filelist span:hover {
+	cursor: pointer;
+}

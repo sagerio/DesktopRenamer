@@ -69,7 +69,8 @@ async function readFiles(event, path) {
 
 
 async function runStart(event, data) {
-	// dialog.showMessageBox(window, { title: TITEL, message: data.simulate.toString() });
+	console.log("data.movetofolder:", data.movetofolder);
+	// dialog.showMessageBox(window, { title: TITEL, message: data.movetofolder.toString() });
 	// return;
 	try {
 		const filePairs = [];
@@ -86,6 +87,27 @@ async function runStart(event, data) {
 			if (data.simulate !== true) {
 				renameSync(oldFullName, newFullName);
 			}
+			if (data.movetofolder === true) {
+				// get first char and check if folder exists
+				let c = newFullName[0].toUpperCase();
+				console.log(c);
+				// string folderPath = Path.Combine(folder, c);
+				// 3. if not, create
+				// if (!Directory.Exists(folderPath))
+				// {
+				// 	if (!simulate)
+				// 	{
+				// 		Directory.CreateDirectory(folderPath);
+				// 	}
+				// }
+				// 	4. move file to folder
+				// 	string targetPath = Path.Combine(folderPath, Path.GetFileName(newName));
+				// 	dataGrid.Rows.Add(Path.GetFileName(file), Path.Combine(c, Path.GetFileName(newName)));
+				// 	if (!simulate)
+				// 	{
+				// 		File.Move(newName, targetPath);
+				// 	}
+			}
 			filePairs.push({ old: basename(oldFullName), new: basename(newFullName) });
 			window.setProgressBar(percent * (i + 1), { mode: "normal" });
 			app.badgeCount--;
@@ -95,50 +117,6 @@ async function runStart(event, data) {
 		window.setProgressBar(1, { mode: "normal" });
 		window.setEnabled(true);
 		return filePairs;
-
-		// bool simulate = chkSimulate.Checked;
-		// grpOptions.Enabled = false;
-		// foreach (string file in files)
-		// {
-		// 	// 1. RENAME TO HASH
-		// 	string guid = Guid.NewGuid().ToString();
-		// 	string ext = Path.GetExtension(file);
-		// 	string newName = Path.Combine(folder, string.Concat(guid, ext));
-		// 	if (radUmbenennen.Checked) {
-		// 		dataGrid.Rows.Add(Path.GetFileName(file), Path.GetFileName(newName));
-		// 	}
-		// 	if (!simulate)
-		// 	{
-		// 		File.Move(file, newName);
-		// 	}
-		// 	if (radVerschieben.Checked)
-		// 	{
-		// 		// 2. get first char and check if folder exists
-		// 		string c = Path.GetFileName(newName)[0].ToString().ToUpper();
-		// 		string folderPath = Path.Combine(folder, c);
-
-		// 		// 3. if not, create
-		// 		if (!Directory.Exists(folderPath))
-		// 		{
-		// 			if (!simulate)
-		// 			{
-		// 				Directory.CreateDirectory(folderPath);
-		// 			}
-		// 		}
-		// 		// 4. move file to folder
-		// 		string targetPath = Path.Combine(folderPath, Path.GetFileName(newName));
-		// 		dataGrid.Rows.Add(Path.GetFileName(file), Path.Combine(c, Path.GetFileName(newName)));
-		// 		if (!simulate)
-		// 		{
-		// 			File.Move(newName, targetPath);
-		// 		}
-		// 	}
-		// 	progressBar.PerformStep();
-		// 	Application.DoEvents();
-		// }
-		// statusText.Text = "fertig";
-		// btnStart.Enabled = false;
-		// btnReset.Enabled = true;
 	} catch (error) {
 		window.setProgressBar(0, { mode: "error" });
 		dialog.showErrorBox(TITEL, `Hoppla, da ist etwas schief gelaufen...\n\n${error}`);

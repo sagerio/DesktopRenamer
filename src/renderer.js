@@ -15,6 +15,7 @@ const btnRefresh = document.getElementById("btnrefresh");
 const btnStart = document.getElementById("btnstart");
 const chkAll = document.getElementById("chkAll");
 const chkSimulate = document.getElementById("simulate");
+const chkMoveToFolder = document.getElementById("movetofolder");
 const counter = document.getElementById("counter");
 let filePath = "";
 let files = [];
@@ -23,8 +24,18 @@ let files = [];
 window.api.Titel.then(t => document.querySelector("h2").innerText = t);
 
 
+// change checkbox also on span click
+function change(e) {
+	const el = document.querySelector(`input[type=checkbox][data-filename='${e.target.dataset.filename}']`);
+	if (el) {
+		el.checked = !el.checked;
+	}
+	checkStartButtonAndchkAll();
+}
+
+
 // fired when a single checkbox or chAll is ticked/unticked
-function checkStartButton() {
+function checkStartButtonAndchkAll() {
 	const checkboxes = Array.from(document.querySelectorAll("#filelist input[type=checkbox]"));
 	const enabled = checkboxes.some(x => x.checked === true);
 	btnStart.disabled = !enabled;
@@ -37,8 +48,7 @@ function checkStartButton() {
 	}
 	if (checkboxes.every(x => x.checked === true)) {
 		chkAll.checked = true;
-	}
-	if (checkboxes.every(x => x.checked === false)) {
+	} else {
 		chkAll.checked = false;
 	}
 }
@@ -62,13 +72,17 @@ async function readFolder(filePath) {
 						<input type="checkbox" id="${i}" data-filename="${file}">
 					</label>`;
 				let cell2 = row.insertCell(1);
+				// cell2.innerHTML = `<span data-filename="${file}" onclick="change(${i})">${file}</span>`;
 				cell2.innerHTML = `<span data-filename="${file}">${file}</span>`;
+			});
+			document.querySelectorAll("#filelist span").forEach(e =>{
+				e.addEventListener("click", change);
 			});
 			btnRefresh.disabled = false;
 			btnRefresh.classList.add("btn-outline-dark");
 			btnRefresh.classList.remove("btn-outline-secondary");
 			document.querySelectorAll("#filelist input[type=checkbox]").forEach(element =>
-				element.addEventListener("click", () => checkStartButton())
+				element.addEventListener("click", () => checkStartButtonAndchkAll())
 			);
 		} else {
 			btnStart.disabled = true;
@@ -93,29 +107,34 @@ btnStart.addEventListener("click", async () => {
 		const renamedFiles = await window.api.start({
 			path: filePath,
 			filenames: nodes,
-			simulate: chkSimulate.checked
+			simulate: chkSimulate.checked,
+			movetofolder: chkMoveToFolder.checked
 		});
-		renamedFiles.forEach(x => {
-			console.assert(document.querySelector(`#filelist input[type=checkbox][data-filename='${x.old}']`), "checkbox not found");
-			console.assert(document.querySelector(`#filelist span[data-filename='${x.old}']`), "span not found");
-			// attribute checkbox
-			document.querySelector(`#filelist input[type=checkbox][data-filename='${x.old}']`).dataset.filename = x.new;
-			// innerText span first
-			document.querySelector(`#filelist span[data-filename='${x.old}']`).innerText = x.new;
-			// attribute span
-			document.querySelector(`#filelist span[data-filename='${x.old}']`).dataset.filename = x.new;
-		});
+		if (renamedFiles) {
+			renamedFiles.forEach(x => {
+				console.assert(document.querySelector(`#filelist input[type=checkbox][data-filename='${x.old}']`), "checkbox not found");
+				console.assert(document.querySelector(`#filelist span[data-filename='${x.old}']`), "span not found");
+				if (!chkSimulate.checked) {
+					// attribute checkbox
+					document.querySelector(`#filelist input[type=checkbox][data-filename='${x.old}']`).dataset.filename = x.new;
+				}
+				// innerText span first
+				document.querySelector(`#filelist span[data-filename='${x.old}']`).innerText = x.new;
+				if (!chkSimulate.checked) {
+					// attribute span
+					document.querySelector(`#filelist span[data-filename='${x.old}']`).dataset.filename = x.new;
+				}
+			});
+		}
 		document.querySelectorAll("#filelist input[type=checkbox]").forEach(x => x.checked = false);
-		chkAll.checked = false;
-		btnStart.classList.add("btn-outline-secondary");
-		btnStart.classList.remove("btn-success");
+		checkStartButtonAndchkAll();
 	}
 });
 
 
 chkAll.addEventListener("change", () => {
 	document.querySelectorAll("#filelist input[type=checkbox]").forEach(x => x.checked = chkAll.checked);
-	checkStartButton();
+	checkStartButtonAndchkAll();
 });
 
 
