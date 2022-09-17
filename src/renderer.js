@@ -23,8 +23,10 @@ let files = [];
 window.api.Titel.then(t => document.querySelector("h2").innerText = t);
 
 
+// fired when a single checkbox or chAll is ticked/unticked
 function checkStartButton() {
-	const enabled = document.querySelectorAll("#filelist input[type=checkbox]:checked").length > 0;
+	const checkboxes = Array.from(document.querySelectorAll("#filelist input[type=checkbox]"));
+	const enabled = checkboxes.some(x => x.checked === true);
 	btnStart.disabled = !enabled;
 	if (enabled) {
 		btnStart.classList.remove("btn-outline-secondary");
@@ -32,6 +34,12 @@ function checkStartButton() {
 	} else {
 		btnStart.classList.add("btn-outline-secondary");
 		btnStart.classList.remove("btn-success");
+	}
+	if (checkboxes.every(x => x.checked === true)) {
+		chkAll.checked = true;
+	}
+	if (checkboxes.every(x => x.checked === false)) {
+		chkAll.checked = false;
 	}
 }
 

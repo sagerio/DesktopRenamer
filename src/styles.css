@@ -47,3 +47,7 @@ h2 {
 	align-self: start;
 	margin: 1.5rem 0 1rem .5rem;
 }
+
+#chkAll, #filelist input[type=checkbox] {
+	transform: scale(1.25);
+}
