@@ -2,11 +2,10 @@
 // No Node.js APIs are available in this process because `nodeIntegration` is turned off.
 // Use `preload.js` to selectively enable features needed in the rendering process.
 
-/**********
-THE RENDERER PROCESS
-can't access the Node.js APIs directly
-can access the  HTML Document Object Model (DOM)
-**********/
+// THE RENDERER PROCESS
+// can't access the Node.js APIs directly
+// can access the  HTML Document Object Model (DOM)
+
 
 const result = document.getElementById("result");
 const table = document.getElementById("filelist");
@@ -46,11 +45,7 @@ function checkStartButtonAndchkAll() {
 		btnStart.classList.add("btn-outline-secondary");
 		btnStart.classList.remove("btn-success");
 	}
-	if (checkboxes.every(x => x.checked === true)) {
-		chkAll.checked = true;
-	} else {
-		chkAll.checked = false;
-	}
+	chkAll.checked = checkboxes.every(x => x.checked === true);
 }
 
 
@@ -61,33 +56,32 @@ async function readFolder(filePath) {
 			table.deleteRow(i);
 		}
 		files = await window.api.readFiles(filePath);
+		counter.innerText = files.length;
 		files = files.map(x => x.toLowerCase()).sort();
 		chkAll.disabled = files.length < 2;
 		if (files && files.length > 0) {
 			files.forEach((file, i) => {
-				let row = table.insertRow(i);
-				let cell1 = row.insertCell(0);
+				const row = table.insertRow(i);
+				const cell1 = row.insertCell(0);
 				cell1.innerHTML = `
 					<label for="${i}">
 						<input type="checkbox" id="${i}" data-filename="${file}">
 					</label>`;
-				let cell2 = row.insertCell(1);
-				// cell2.innerHTML = `<span data-filename="${file}" onclick="change(${i})">${file}</span>`;
+				const cell2 = row.insertCell(1);
 				cell2.innerHTML = `<span data-filename="${file}">${file}</span>`;
 			});
 			document.querySelectorAll("#filelist span").forEach(e =>{
 				e.addEventListener("click", change);
 			});
-			btnRefresh.disabled = false;
-			btnRefresh.classList.add("btn-outline-dark");
-			btnRefresh.classList.remove("btn-outline-secondary");
 			document.querySelectorAll("#filelist input[type=checkbox]").forEach(element =>
 				element.addEventListener("click", () => checkStartButtonAndchkAll())
 			);
 		} else {
-			btnStart.disabled = true;
 			table.insertRow(0).insertCell(0).innerText = "..";
 		}
+		btnRefresh.disabled = false;
+		btnRefresh.classList.add("btn-outline-dark");
+		btnRefresh.classList.remove("btn-outline-secondary");
 	}
 }
 
@@ -102,32 +96,38 @@ btnOpenFolder.addEventListener("click", async () => {
 
 
 btnStart.addEventListener("click", async () => {
+	const simulation = chkSimulate.checked;
 	const nodes = Array.from(document.querySelectorAll("#filelist input[type=checkbox]:checked")).map(x => x.dataset.filename);
 	if (nodes.length > 0) {
 		const renamedFiles = await window.api.start({
 			path: filePath,
 			filenames: nodes,
-			simulate: chkSimulate.checked,
+			simulate: simulation,
 			movetofolder: chkMoveToFolder.checked
 		});
 		if (renamedFiles) {
 			renamedFiles.forEach(x => {
-				console.assert(document.querySelector(`#filelist input[type=checkbox][data-filename='${x.old}']`), "checkbox not found");
-				console.assert(document.querySelector(`#filelist span[data-filename='${x.old}']`), "span not found");
-				if (!chkSimulate.checked) {
+				const old = x.old.replace("\\", "/");
+				const neu = x.new.replace("\\", "/");
+				console.assert(document.querySelector(`#filelist input[type=checkbox][data-filename='${old}']`), "checkbox not found");
+				console.assert(document.querySelector(`#filelist span[data-filename='${old}']`), "span not found");
+				if (!simulation) {
 					// attribute checkbox
-					document.querySelector(`#filelist input[type=checkbox][data-filename='${x.old}']`).dataset.filename = x.new;
+					document.querySelector(`#filelist input[type=checkbox][data-filename='${old}']`).dataset.filename = neu;
 				}
 				// innerText span first
-				document.querySelector(`#filelist span[data-filename='${x.old}']`).innerText = x.new;
-				if (!chkSimulate.checked) {
+				document.querySelector(`#filelist span[data-filename='${old}']`).innerText = neu;
+				if (!simulation) {
 					// attribute span
-					document.querySelector(`#filelist span[data-filename='${x.old}']`).dataset.filename = x.new;
+					document.querySelector(`#filelist span[data-filename='${old}']`).dataset.filename = neu;
 				}
 			});
+			if (!simulation) {
+				readFolder(filePath);
+			}
 		}
 		document.querySelectorAll("#filelist input[type=checkbox]").forEach(x => x.checked = false);
-		checkStartButtonAndchkAll();
+		chkAll.checked = btnStart.disabled = false;
 	}
 });
 
@@ -138,7 +138,7 @@ chkAll.addEventListener("change", () => {
 });
 
 
-window.api.handleCounter((event, value) => {
-	counter.innerText = value;
-	event.sender.send('counter-value', value)
-});
+// window.api.handleCounter((event, value) => {
+// 	counter.innerText = value;
+// 	event.sender.send("counter-value", value);
+// });

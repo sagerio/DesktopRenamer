@@ -1,14 +1,12 @@
-const { app, BrowserWindow, dialog, globalShortcut, ipcMain, Notification, Tray, Menu, nativeImage, Input } = require("electron");
-try { require("electron-reloader")(module); } catch (_) { }
-const { readdir, renameSync, statSync } = require("fs-extra");
+const { readdir, renameSync, statSync, existsSync, mkdirSync } = require("fs-extra");
+const { app, BrowserWindow, dialog, globalShortcut, ipcMain } = require("electron");
 const { join, extname, dirname, basename } = require("path");
+try { require("electron-reloader")(module); } catch (ex) { console.error(ex); }
 const { v4 } = require("uuid");
 
-/**********
-THE MAIN PROCESS
-can access the Node.js APIs directly
-can"t access the  HTML Document Object Model (DOM)
-**********/
+// THE MAIN PROCESS
+// can access the Node.js APIs directly
+// can't access the  HTML Document Object Model (DOM)
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -37,15 +35,13 @@ const TITEL = "Desktop Renamer";
 // const answer = await dialog.showMessageBox(window, options);
 // return answer.response;
 
-// TODO in Ordner verschieben
 // TODO https://github.com/sindresorhus/awesome-electron#tools
 // TODO Auto-Updater: https://www.electronjs.org/de/docs/latest/tutorial/updates
 
 async function openPath() {
 	const { canceled, filePaths } = await dialog.showOpenDialog(window, {
 		title: "Choose folder",
-		// UNDO defaultPath: __dirname
-		defaultPath: "C:\\Users\\robert\\Downloads\\__TEST__",
+		defaultPath: __dirname,
 		buttonLabel: "Choose this folder",
 		properties: ["openDirectory"],
 	});
@@ -69,10 +65,11 @@ async function readFiles(event, path) {
 
 
 async function runStart(event, data) {
-	console.log("data.movetofolder:", data.movetofolder);
-	// dialog.showMessageBox(window, { title: TITEL, message: data.movetofolder.toString() });
+	// dialog.showMessageBox(window, { title: TITEL, message: data.movetofolder });
 	// return;
 	try {
+		const simulation = data.simulate === true;
+		const movetofolder = data.movetofolder === true;
 		const filePairs = [];
 		window.setEnabled(false);
 		app.badgeCount = data.filenames.length;
@@ -84,36 +81,39 @@ async function runStart(event, data) {
 				dirname(oldFullName),
 				`${v4()}${extname(oldFullName)}`,
 			);
-			if (data.simulate !== true) {
+			if (!simulation) {
 				renameSync(oldFullName, newFullName);
 			}
-			if (data.movetofolder === true) {
+			let neu = "";
+			if (movetofolder) {
 				// get first char and check if folder exists
-				let c = newFullName[0].toUpperCase();
-				console.log(c);
-				// string folderPath = Path.Combine(folder, c);
-				// 3. if not, create
-				// if (!Directory.Exists(folderPath))
-				// {
-				// 	if (!simulate)
-				// 	{
-				// 		Directory.CreateDirectory(folderPath);
-				// 	}
-				// }
-				// 	4. move file to folder
-				// 	string targetPath = Path.Combine(folderPath, Path.GetFileName(newName));
-				// 	dataGrid.Rows.Add(Path.GetFileName(file), Path.Combine(c, Path.GetFileName(newName)));
-				// 	if (!simulate)
-				// 	{
-				// 		File.Move(newName, targetPath);
-				// 	}
+				const firstChar = basename(newFullName)[0].toUpperCase();
+				const folderPath = join(data.path, firstChar);
+				// if not, create if not simulation
+				if (!simulation && !existsSync(folderPath))
+				{
+					mkdirSync(folderPath);
+				}
+				// 	move file to folder
+				const targetPath = join(folderPath, basename(newFullName));
+				if (!simulation)
+				{
+					renameSync(join(data.path, basename(newFullName)), targetPath);
+				}
+				neu = join(firstChar, basename(newFullName));
+			} else {
+				neu = basename(newFullName);
 			}
-			filePairs.push({ old: basename(oldFullName), new: basename(newFullName) });
+			filePairs.push({
+				old: basename(oldFullName),
+				new: neu,
+			});
+
 			window.setProgressBar(percent * (i + 1), { mode: "normal" });
 			app.badgeCount--;
 		}
 
-		window.webContents.send("update-counter", 100);
+		// window.webContents.send("update-counter", 100);
 		window.setProgressBar(1, { mode: "normal" });
 		window.setEnabled(true);
 		return filePairs;
@@ -156,8 +156,8 @@ app.whenReady().then(() => {
 	ipcMain.handle("readFiles", readFiles);
 	ipcMain.handle("start", runStart);
 	ipcMain.on("counter-value", (event, value) => {
-    	console.log(value); // will print value to Node console
-  	});
+		console.log(value); // will print value to Node console
+	});
 
 	// 	mainWindow.setProgressBar(0, { mode: "normal" });
 

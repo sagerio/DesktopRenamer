@@ -6,7 +6,7 @@
 	"main": "src/main.js",
 	"scripts": {
 		"start": "electron-forge start",
-		"exe": "electron-builder --win portable",
+		"exe": "electron-builder --win portable --icon= build/icon.ico",
 		"package": "electron-forge package",
 		"make": "electron-forge make",
 		"publish": "electron-forge publish",

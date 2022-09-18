@@ -1,0 +1,119 @@
+{
+	"root": true,
+	"env": {
+		"browser": true,
+		"es6": true,
+		"node": true
+	},
+	"parserOptions": {
+		"ecmaVersion": 8
+	},
+	"extends": [
+		"eslint:recommended"
+	],
+	// "parser": "@typescript-eslint/parser",
+	// "plugins": ["@typescript-eslint/eslint-plugin"],
+	"settings": {},
+	"rules": {
+		"no-unused-vars": "warn"
+	// 	"prefer-promise-reject-errors": "off",
+	// 	"camelcase": "off",
+	// 	"operator-linebreak": "off",
+	// 	"no-mixed-spaces-and-tabs": "warn",
+	// 	"spaced-comment": "warn",
+	// 	"computed-property-spacing": "off",
+	// 	"space-before-function-paren": [
+	// 		"warn",
+	// 		{
+	// 			"anonymous": "always",
+	// 			"named": "never",
+	// 			"asyncArrow": "always"
+	// 		}
+	// 	],
+	// 	"linebreak-style": "off",
+	// 	"no-tabs": "off",
+	// 	"valid-jsdoc": "off",
+	// 	"block-spacing": [
+	// 		"warn",
+	// 		"always"
+	// 	],
+	// 	"brace-style": "off",
+	// 	"padded-blocks": "off",
+	// 	"no-invalid-this": "off",
+	// 	"indent": "off",
+	// 	"arrow-parens": "off",
+	// 	"array-bracket-spacing": "off",
+	// 	"comma-dangle": [
+	// 		"warn",
+	// 		"only-multiline"
+	// 	],
+	// 	"eqeqeq": "warn",
+	// 	"max-len": [
+	// 		"off",
+	// 		{
+	// 			"code": 121
+	// 		}
+	// 	],
+	// 	"new-cap": "off",
+	// 	"no-await-in-loop": "warn",
+	// 	"no-multi-spaces": "warn",
+	// 	"object-curly-spacing": [
+	// 		"warn",
+	// 		"always"
+	// 	],
+	// 	"prefer-const": [
+	// 		"warn"
+	// 	],
+	// 	"quotes": [
+	// 		"off",
+	// 		"double"
+	// 	],
+	// 	"require-jsdoc": "off",
+	// 	"semi": [
+	// 		"error",
+	// 		"always"
+	// 	],
+	// 	"semi-spacing": [
+	// 		"error",
+	// 		{
+	// 			"before": false,
+	// 			"after": true
+	// 		}
+	// 	],
+	// 	"space-in-parens": [
+	// 		"warn",
+	// 		"never"
+	// 	],
+	// 	"space-infix-ops": [
+	// 		"error",
+	// 		{
+	// 			"int32Hint": true
+	// 		}
+	// 	],
+	// 	"space-unary-ops": [
+	// 		"error",
+	// 		{
+	// 			"words": true,
+	// 			"nonwords": false
+	// 		}
+	// 	],
+	// 	"no-multiple-empty-lines": [
+	// 		"warn",
+	// 		{
+	// 			"max": 5
+	// 		}
+	// 	],
+	// 	"no-param-reassign": [
+	// 		"error",
+	// 		{
+	// 			"props": false
+	// 		}
+	// 	],
+	// 	"one-var": "off"
+	},
+	"ignorePatterns": [
+		"node_modules/**/*",
+		"dist/**/*",
+		"**/*.d.ts"
+	]
+}
