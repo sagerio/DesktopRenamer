@@ -4,6 +4,7 @@ const { join, extname, dirname, basename } = require("path");
 try { require("electron-reloader")(module); } catch (ex) { console.error(ex); }
 const { v4 } = require("uuid");
 
+
 // THE MAIN PROCESS
 // can access the Node.js APIs directly
 // can't access the  HTML Document Object Model (DOM)
@@ -36,7 +37,14 @@ const TITEL = "Desktop Renamer";
 // return answer.response;
 
 // TODO https://github.com/sindresorhus/awesome-electron#tools
+// TODO style window
 // TODO Auto-Updater: https://www.electronjs.org/de/docs/latest/tutorial/updates
+// TODO electron-negativity
+
+// function getVersion() {
+// dialog.showMessageBox(window, { title: TITEL, message: app.getVersion() });
+// }
+
 
 async function openPath() {
 	const { canceled, filePaths } = await dialog.showOpenDialog(window, {
@@ -113,7 +121,6 @@ async function runStart(event, data) {
 			app.badgeCount--;
 		}
 
-		// window.webContents.send("update-counter", 100);
 		window.setProgressBar(1, { mode: "normal" });
 		window.setEnabled(true);
 		return filePairs;
@@ -126,8 +133,8 @@ async function runStart(event, data) {
 
 app.whenReady().then(() => {
 	window = new BrowserWindow({
-		width: 1024,
-		height: 768,
+		width: app.isPackaged ? 640 : 1024,
+		height: app.isPackaged ? 480 : 768,
 		icon: `${__dirname}/rename.ico`,
 		alwaysOnTop: false,
 		autoHideMenuBar: true,
@@ -150,14 +157,17 @@ app.whenReady().then(() => {
 		},
 	});
 
+	const contents = window.webContents;
+	console.log(contents);
+
 	// window.setProgressBar(0.5, { mode: "normal" });
 	ipcMain.handle("titel", () => TITEL);
 	ipcMain.handle("openPath", openPath);
 	ipcMain.handle("readFiles", readFiles);
 	ipcMain.handle("start", runStart);
-	ipcMain.on("counter-value", (event, value) => {
-		console.log(value); // will print value to Node console
-	});
+	// ipcMain.on("counter-value", (event, value) => {
+	// 	console.log(value); // will print value to Node console
+	// });
 
 	// 	mainWindow.setProgressBar(0, { mode: "normal" });
 
@@ -165,9 +175,13 @@ app.whenReady().then(() => {
 
 	window.on("ready-to-show", () => {
 		// mainWindow.setTitle("TinyPGP");
-		window.webContents.openDevTools({ mode: "left" });
+		if (!app.isPackaged) {
+			window.webContents.openDevTools({ mode: "left" });
+		}
 		// window.maximize();
 		window.show();
+
+		window.webContents.send("set-version", app.getVersion())
 
 		globalShortcut.register("CommandOrControl+r", () => {
 			console.log("::reloading");

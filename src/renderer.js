@@ -6,7 +6,6 @@
 // can't access the Node.js APIs directly
 // can access the  HTML Document Object Model (DOM)
 
-
 const result = document.getElementById("result");
 const table = document.getElementById("filelist");
 const btnOpenFolder = document.getElementById("btnopenfolder");
@@ -16,12 +15,12 @@ const chkAll = document.getElementById("chkAll");
 const chkSimulate = document.getElementById("simulate");
 const chkMoveToFolder = document.getElementById("movetofolder");
 const counter = document.getElementById("counter");
+const version = document.getElementById("version");
 let filePath = "";
 let files = [];
 
 
 window.api.Titel.then(t => document.querySelector("h2").innerText = t);
-
 
 // change checkbox also on span click
 function change(e) {
@@ -138,7 +137,5 @@ chkAll.addEventListener("change", () => {
 });
 
 
-// window.api.handleCounter((event, value) => {
-// 	counter.innerText = value;
-// 	event.sender.send("counter-value", value);
-// });
+// Möglichkeit (2)
+window.api.onSetVersion((_event, value) => version.innerText = `v${value}`);

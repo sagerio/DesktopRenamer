@@ -10,5 +10,15 @@ contextBridge.exposeInMainWorld("api", {
 	openPath: () => ipcRenderer.invoke("openPath"),
 	readFiles: path => ipcRenderer.invoke("readFiles", path),
 	start: data => ipcRenderer.invoke("start", data),
-	// handleCounter: callback => ipcRenderer.on("update-counter", callback),
+	// Möglichkeit (2)
+	onSetVersion: callback => ipcRenderer.on("set-version", callback),
 });
+
+
+// Möglichkeit (1)
+// window.addEventListener("DOMContentLoaded", () => {
+// 	const version = document.getElementById("version");
+// 	ipcRenderer.on("set-version", (event, value) => {
+// 		version.innerText = value;
+// 	});
+// });

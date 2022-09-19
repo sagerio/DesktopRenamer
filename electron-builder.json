@@ -1,0 +1,18 @@
+{
+	"productName": "Desktop Renamer",
+	"executableName": "DesktopRenamer",
+	"appId": "io.sager.desktoprenamer",
+	"target": "portable",
+	"artifactName": "${productName}_${version}_${os}.${ext}",
+	"directories": {
+		"buildResources": "resources",
+		"output": "release"
+	},
+	"win": {
+		"icon": "./src/rename.png"
+	},
+	"linux": {
+		"target": "AppImage",
+		"icon": "./src/rename.png"
+	}
+}
