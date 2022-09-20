@@ -1,7 +1,7 @@
 {
 	"name": "desktoprenamer",
 	"productName": "desktoprenamer",
-	"version": "1.0.1",
+	"version": "1.2.0",
 	"description": "My Electron application description",
 	"main": "src/main.js",
 	"scripts": {

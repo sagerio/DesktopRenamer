@@ -36,20 +36,16 @@ const TITEL = "Desktop Renamer";
 // const answer = await dialog.showMessageBox(window, options);
 // return answer.response;
 
+// TODO Version++, neues Release
 // TODO https://github.com/sindresorhus/awesome-electron#tools
-// TODO style window
 // TODO Auto-Updater: https://www.electronjs.org/de/docs/latest/tutorial/updates
 // TODO electron-negativity
 
-// function getVersion() {
-// dialog.showMessageBox(window, { title: TITEL, message: app.getVersion() });
-// }
 
-
-async function openPath() {
+async function openPath(event, path) {
 	const { canceled, filePaths } = await dialog.showOpenDialog(window, {
 		title: "Choose folder",
-		defaultPath: __dirname,
+		defaultPath: path ? path : __dirname,
 		buttonLabel: "Choose this folder",
 		properties: ["openDirectory"],
 	});
@@ -133,6 +129,12 @@ async function runStart(event, data) {
 
 app.whenReady().then(() => {
 	window = new BrowserWindow({
+		// titleBarStyle: "hidden",
+		// titleBarOverlay: {
+		// 	color: "#2f3241",
+		// 	symbolColor: "#fff",
+		// 	height: 40
+		// },
 		width: app.isPackaged ? 640 : 1024,
 		height: app.isPackaged ? 480 : 768,
 		icon: `${__dirname}/rename.ico`,

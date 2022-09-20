@@ -16,6 +16,8 @@ const chkSimulate = document.getElementById("simulate");
 const chkMoveToFolder = document.getElementById("movetofolder");
 const counter = document.getElementById("counter");
 const version = document.getElementById("version");
+const spinner = document.getElementById("pause");
+const totop = document.getElementById("totop");
 let filePath = "";
 let files = [];
 
@@ -50,12 +52,18 @@ function checkStartButtonAndchkAll() {
 
 async function readFolder(filePath) {
 	if (filePath) {
+		spinner.classList.remove("d-none");
 		result.value = filePath;
 		for (let i = table.rows.length - 1; i >= 0; i--) {
 			table.deleteRow(i);
 		}
 		files = await window.api.readFiles(filePath);
 		counter.innerText = files.length;
+		if (files.length > 10) {
+			totop.classList.remove("d-none");
+		} else {
+			totop.classList.add("d-none");
+		}
 		files = files.map(x => x.toLowerCase()).sort();
 		chkAll.disabled = files.length < 2;
 		if (files && files.length > 0) {
@@ -81,6 +89,7 @@ async function readFolder(filePath) {
 		btnRefresh.disabled = false;
 		btnRefresh.classList.add("btn-outline-dark");
 		btnRefresh.classList.remove("btn-outline-secondary");
+		spinner.classList.add("d-none");
 	}
 }
 
@@ -89,7 +98,7 @@ btnRefresh.addEventListener("click", async () => readFolder(filePath));
 
 
 btnOpenFolder.addEventListener("click", async () => {
-	filePath = await window.api.openPath();
+	filePath = await window.api.openPath(filePath);
 	readFolder(filePath);
 });
 
@@ -98,6 +107,7 @@ btnStart.addEventListener("click", async () => {
 	const simulation = chkSimulate.checked;
 	const nodes = Array.from(document.querySelectorAll("#filelist input[type=checkbox]:checked")).map(x => x.dataset.filename);
 	if (nodes.length > 0) {
+		spinner.classList.remove("d-none");
 		const renamedFiles = await window.api.start({
 			path: filePath,
 			filenames: nodes,
@@ -108,8 +118,8 @@ btnStart.addEventListener("click", async () => {
 			renamedFiles.forEach(x => {
 				const old = x.old.replace("\\", "/");
 				const neu = x.new.replace("\\", "/");
-				console.assert(document.querySelector(`#filelist input[type=checkbox][data-filename='${old}']`), "checkbox not found");
-				console.assert(document.querySelector(`#filelist span[data-filename='${old}']`), "span not found");
+				// console.assert(document.querySelector(`#filelist input[type=checkbox][data-filename='${old}']`), "checkbox not found");
+				// console.assert(document.querySelector(`#filelist span[data-filename='${old}']`), "span not found");
 				if (!simulation) {
 					// attribute checkbox
 					document.querySelector(`#filelist input[type=checkbox][data-filename='${old}']`).dataset.filename = neu;
@@ -127,6 +137,7 @@ btnStart.addEventListener("click", async () => {
 		}
 		document.querySelectorAll("#filelist input[type=checkbox]").forEach(x => x.checked = false);
 		chkAll.checked = btnStart.disabled = false;
+		spinner.classList.add("d-none");
 	}
 });
 
@@ -139,3 +150,8 @@ chkAll.addEventListener("change", () => {
 
 // Möglichkeit (2)
 window.api.onSetVersion((_event, value) => version.innerText = `v${value}`);
+
+
+totop.addEventListener("click", () =>
+	document.querySelector(".container-outer").scroll({ top: 0, left: 0, behavior: "smooth" })
+);
