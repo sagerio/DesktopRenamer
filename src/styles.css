@@ -1,18 +1,55 @@
 
-.container-outer {
+body {
+	overflow-y: hidden;
+}
+
+#container-outer {
  	display: flex;
 	flex-flow: column;
-	margin: 5vmin 5vmin 0;
-	height: 98vmin;
-	width: 90vw;
+	margin: 4vw 4vw 6vw 4vw;
+	height: 90vh;
 	overflow-y: auto;
+}
+
+#footer {
+	position: absolute;
+	bottom: 1vh;
+	width: 90vw;
+	height: 4vh;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: 75%;
+}
+
+#placeholder {
+	width: 36px;
+	height: 36px;
+}
+
+#drag-drop-overlay {
+	z-index: 1000;
+ 	display: none;
+	flex-flow: column;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	width: 100vw;
+	overflow: hidden;
+}
+
+#drag-drop {
+ 	display: flex;
+	flex-flow: column;
+	justify-content: center;
+	align-items: center;
 }
 
 .container-inner {
  	display: flex;
 	flex-flow: column;
 	height: 100%;
-	margin-right: 3em;
+	width: 98%;
 }
 
 h2 {
@@ -24,14 +61,6 @@ h2 {
 	display: flex;
 	align-items: center;
 	justify-self: flex-start;
-}
-
-#footer {
-	margin: 5vmin 5vmin 0;
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-	font-size: 75%;
 }
 
 #filelist td:first-child {
@@ -73,4 +102,25 @@ h2 {
 	width: 5rem;
 	height: 5rem;
 	color: #fff;
+}
+
+/*
+::-webkit-scrollbar-button		The buttons on the scrollbar.
+::-webkit-scrollbar-track		The draggable scrolling handle.
+::-webkit-scrollbar-track-piece	The track of the scrollbar.
+::-webkit-scrollbar-thumb		The part of the track not covered by the handle.
+::-webkit-scrollbar-corner		The bottom corner of the scrollbar, where both horizontal and vertical scrollbars meet.
+::-webkit-resizer				The draggable resizing handle that appears at the bottom corner of some elements.
+*/
+::-webkit-scrollbar {
+	width: .25rem;
+}
+::-webkit-scrollbar-thumb {
+	background: #000;
+	border-radius: .125rem;
+	/* border: 1px solid var(--fontcolor); */
+}
+::-webkit-scrollbar-track {
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 }

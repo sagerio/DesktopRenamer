@@ -53,6 +53,11 @@ async function openPath(event, path) {
 }
 
 
+async function getPath(event, path) {
+	return dirname(path);
+}
+
+
 async function readFiles(event, path) {
 	try {
 		window.setProgressBar(0, { mode: "normal" });
@@ -143,7 +148,7 @@ app.whenReady().then(() => {
 		transparent: false,
 		frame: true,
 		center: true,
-		resizable: false,
+		resizable: true,
 		title: TITEL,
 		skipTaskbar: false,
 		minimizable: true,
@@ -167,6 +172,7 @@ app.whenReady().then(() => {
 	ipcMain.handle("openPath", openPath);
 	ipcMain.handle("readFiles", readFiles);
 	ipcMain.handle("start", runStart);
+	ipcMain.handle("getPath", getPath);
 	// ipcMain.on("counter-value", (event, value) => {
 	// 	console.log(value); // will print value to Node console
 	// });

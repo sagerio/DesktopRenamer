@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld("api", {
 	openPath: path => ipcRenderer.invoke("openPath", path),
 	readFiles: path => ipcRenderer.invoke("readFiles", path),
 	start: data => ipcRenderer.invoke("start", data),
+	getPath: path => ipcRenderer.invoke("getPath", path),
 	// Möglichkeit (2)
 	onSetVersion: callback => ipcRenderer.on("set-version", callback),
 });

@@ -18,8 +18,12 @@ const counter = document.getElementById("counter");
 const version = document.getElementById("version");
 const spinner = document.getElementById("pause");
 const totop = document.getElementById("totop");
+const placeholder = document.getElementById("placeholder");
+const dragDropOverlay = document.getElementById("drag-drop-overlay");
+const containerOuter = document.getElementById("container-outer");
 let filePath = "";
 let files = [];
+let dragLeaveCounter = 0;
 
 
 window.api.Titel.then(t => document.querySelector("h2").innerText = t);
@@ -36,17 +40,56 @@ function change(e) {
 
 // fired when a single checkbox or chAll is ticked/unticked
 function checkStartButtonAndchkAll() {
-	const checkboxes = Array.from(document.querySelectorAll("#filelist input[type=checkbox]"));
-	const enabled = checkboxes.some(x => x.checked === true);
-	btnStart.disabled = !enabled;
-	if (enabled) {
+	const checkBoxes = document.querySelectorAll("#filelist input[type=checkbox]");
+	const checkedBoxes = document.querySelectorAll("#filelist input[type=checkbox]:checked");
+	if (checkedBoxes.length > 0) {
+		btnStart.disabled = false;
 		btnStart.classList.remove("btn-outline-secondary");
 		btnStart.classList.add("btn-success");
 	} else {
+		btnStart.disabled = true;
 		btnStart.classList.add("btn-outline-secondary");
 		btnStart.classList.remove("btn-success");
 	}
-	chkAll.checked = checkboxes.every(x => x.checked === true);
+	chkAll.checked = checkBoxes.length === checkedBoxes.length && checkedBoxes.length > 0;
+}
+
+
+function presentFiles(files) {
+	counter.innerText = files.length;
+	if (files.length > 10) {
+		placeholder.classList.add("d-none");
+		totop.classList.remove("d-none");
+	} else {
+		placeholder.classList.remove("d-none");
+		totop.classList.add("d-none");
+	}
+	files = files.map(x => x.toLowerCase()).sort();
+	chkAll.disabled = files.length < 2;
+	if (files && files.length > 0) {
+		files.forEach((file, i) => {
+			const row = table.insertRow(i);
+			const cell1 = row.insertCell(0);
+			cell1.innerHTML = `
+				<label for="${i}">
+					<input type="checkbox" id="${i}" data-filename="${file}">
+				</label>`;
+			const cell2 = row.insertCell(1);
+			cell2.innerHTML = `<span data-filename="${file}">${file}</span>`;
+		});
+		document.querySelectorAll("#filelist span").forEach(e =>{
+			e.addEventListener("click", change);
+		});
+		document.querySelectorAll("#filelist input[type=checkbox]").forEach(element =>
+			element.addEventListener("click", () => checkStartButtonAndchkAll())
+		);
+	} else {
+		table.insertRow(0).insertCell(0).innerText = "..";
+	}
+	btnRefresh.disabled = false;
+	btnRefresh.classList.add("btn-outline-dark");
+	btnRefresh.classList.remove("btn-outline-secondary");
+	spinner.classList.add("d-none");
 }
 
 
@@ -58,38 +101,7 @@ async function readFolder(filePath) {
 			table.deleteRow(i);
 		}
 		files = await window.api.readFiles(filePath);
-		counter.innerText = files.length;
-		if (files.length > 10) {
-			totop.classList.remove("d-none");
-		} else {
-			totop.classList.add("d-none");
-		}
-		files = files.map(x => x.toLowerCase()).sort();
-		chkAll.disabled = files.length < 2;
-		if (files && files.length > 0) {
-			files.forEach((file, i) => {
-				const row = table.insertRow(i);
-				const cell1 = row.insertCell(0);
-				cell1.innerHTML = `
-					<label for="${i}">
-						<input type="checkbox" id="${i}" data-filename="${file}">
-					</label>`;
-				const cell2 = row.insertCell(1);
-				cell2.innerHTML = `<span data-filename="${file}">${file}</span>`;
-			});
-			document.querySelectorAll("#filelist span").forEach(e =>{
-				e.addEventListener("click", change);
-			});
-			document.querySelectorAll("#filelist input[type=checkbox]").forEach(element =>
-				element.addEventListener("click", () => checkStartButtonAndchkAll())
-			);
-		} else {
-			table.insertRow(0).insertCell(0).innerText = "..";
-		}
-		btnRefresh.disabled = false;
-		btnRefresh.classList.add("btn-outline-dark");
-		btnRefresh.classList.remove("btn-outline-secondary");
-		spinner.classList.add("d-none");
+		presentFiles(files);
 	}
 }
 
@@ -136,9 +148,11 @@ btnStart.addEventListener("click", async () => {
 			}
 		}
 		document.querySelectorAll("#filelist input[type=checkbox]").forEach(x => x.checked = false);
-		chkAll.checked = btnStart.disabled = false;
+		chkAll.checked = false;
+		btnStart.disabled = true;
 		spinner.classList.add("d-none");
 	}
+	checkStartButtonAndchkAll();
 });
 
 
@@ -153,5 +167,56 @@ window.api.onSetVersion((_event, value) => version.innerText = `v${value}`);
 
 
 totop.addEventListener("click", () =>
-	document.querySelector(".container-outer").scroll({ top: 0, left: 0, behavior: "smooth" })
+	containerOuter.scroll({ top: 0, left: 0, behavior: "smooth" })
 );
+
+
+document.addEventListener("drop", async event => {
+	event.preventDefault();
+	event.stopPropagation();
+	dragDropOverlay.style.display = "none";
+	containerOuter.style.display = "block";
+
+	if (event.dataTransfer.files.length > 0) {
+		let files = [];
+		for (const f of event.dataTransfer.files) {
+			// Using the path attribute to get absolute file path
+			files.push(f.name);
+		}
+		const dir = await window.api.getPath(event.dataTransfer.files[0].path);
+		filePath = dir;
+		result.value = filePath;
+		for (let i = table.rows.length - 1; i >= 0; i--) {
+			table.deleteRow(i);
+		}
+		presentFiles(files);
+		document.querySelectorAll("#filelist input[type=checkbox]").forEach(x => x.checked = true);
+		checkStartButtonAndchkAll();
+	}
+});
+
+
+document.addEventListener("dragover", event => {
+	// console.log("::drag over");
+	event.preventDefault();
+	event.stopPropagation();
+    return false;
+});
+
+
+document.addEventListener("dragenter", () => {
+	// console.log("::drag enter");
+	dragLeaveCounter++;
+	dragDropOverlay.style.display = "flex";
+	containerOuter.style.display = "none";
+});
+
+
+document.addEventListener("dragleave", () => {
+	// console.log("::drag leave");
+	dragLeaveCounter--;
+	if (dragLeaveCounter === 0) {
+		dragDropOverlay.style.display = "none";
+		containerOuter.style.display = "block";
+	}
+});
